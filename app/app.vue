@@ -1,6 +1,16 @@
 <template>
-  <div>
-    <NuxtRouteAnnouncer />
-    <NuxtWelcome />
-  </div>
+  <UApp>
+    <UContainer class="py-6">
+      <UNavigationMenu
+          :items="[
+          { label: 'Home', to: '/' },
+          { label: 'Products', to: '/products' }
+        ]"
+      />
+    </UContainer>
+
+    <UContainer class="py-10">
+      <NuxtPage />Xd
+    </UContainer>
+  </UApp>
 </template>

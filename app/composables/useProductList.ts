@@ -1,20 +1,33 @@
 import type { ProductSearchResponse, Product } from '~/types/ProductSearch'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+
+
+export interface ProductsQuery {
+    query: string;
+    sortField: string;
+    sortOrder: 'asc' | 'desc';
+    priceRange: { min?: number, max?: number };
+    category: string | null;
+    page: number;
+}
+
 export function useProductList() {
     const products = ref<Product[]>([])
     const loading = ref(false)
     const error = ref<string | null>(null)
 
-    const searchQuery = ref<string>('')
-    const sortField = ref<string>()
-    const sortOrder = ref<'asc' | 'desc'>('asc')
-
-    const priceRange = ref({min: 0, max: undefined});
+    const searchQueryData = ref<ProductsQuery>({
+        query: '',
+        sortField: 'created_at',
+        sortOrder: 'asc',
+        priceRange: { min: 0, max: undefined },
+        category: null,
+        page: 1,
+    });
 
     // cursors
     const nextCursor = ref<string | null>(null)
     const previousCursor = ref<string | null>(null)
-    const currentPage = ref(1)
 
     const pageCursorMap = ref<Record<number, string | null>>({
         1: null
@@ -35,11 +48,12 @@ export function useProductList() {
             const res = await $fetch<ProductSearchResponse>('/api/products', {
                 params: {
                     cursor: cursor ?? null,
-                    query: searchQuery.value || null,
-                    sort_by: sortField.value || null,
-                    sort_order: sortOrder.value || null,
-                    min_price: priceRange.value.min,
-                    max_price: priceRange.value.max,
+                    query: searchQueryData.value.query || null,
+                    category: searchQueryData.value.category,
+                    sort_by: searchQueryData.value.sortField || null,
+                    sort_order: searchQueryData.value.sortOrder || null,
+                    min_price: searchQueryData.value.priceRange.min,
+                    max_price: searchQueryData.value.priceRange.max,
                 },
             })
 
@@ -48,7 +62,7 @@ export function useProductList() {
             previousCursor.value = res.meta.previous_cursor
             total.value = res.meta.total
             perPage.value = res.meta.per_page
-            pageCursorMap.value[currentPage.value] = cursor ?? null
+            pageCursorMap.value[searchQueryData.value.page] = cursor ?? null
         } catch (e: any) {
             error.value = e.message
         } finally {
@@ -56,7 +70,7 @@ export function useProductList() {
         }
     }
 
-    watch(currentPage, (p, old) => {
+    watch(() => searchQueryData.value.page, (p, old) => {
         if (p !== old) {
             void goToPage(p)
         }
@@ -78,11 +92,7 @@ export function useProductList() {
         error,
         totalPages,
         total,
-        currentPage,
-        priceRange,
         fetchProducts,
-        searchQuery,
-        sortField,
-        sortOrder,
+        searchQueryData,
     }
 }

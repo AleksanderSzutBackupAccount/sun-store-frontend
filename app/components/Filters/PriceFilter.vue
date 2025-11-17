@@ -21,6 +21,7 @@ watch(value, ([min, max]) => {
 
     <USlider
         v-model="value"
+        class="mb-1"
         :min="0"
         :max="5000"
         :step="10"

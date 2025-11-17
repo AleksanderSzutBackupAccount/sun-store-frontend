@@ -1,9 +1,15 @@
 import type { ProductSearchResponse, Product } from '~/types/ProductSearch'
 import { ref, computed } from 'vue'
-export function useProductsSearch() {
+export function useProductList() {
     const products = ref<Product[]>([])
     const loading = ref(false)
     const error = ref<string | null>(null)
+
+    const searchQuery = ref<string>('')
+    const sortField = ref<string>()
+    const sortOrder = ref<'asc' | 'desc'>('asc')
+
+    const priceRange = ref({min: 0, max: undefined});
 
     // cursors
     const nextCursor = ref<string | null>(null)
@@ -29,6 +35,11 @@ export function useProductsSearch() {
             const res = await $fetch<ProductSearchResponse>('/api/products', {
                 params: {
                     cursor: cursor ?? null,
+                    query: searchQuery.value || null,
+                    sort_by: sortField.value || null,
+                    sort_order: sortOrder.value || null,
+                    min_price: priceRange.value.min,
+                    max_price: priceRange.value.max,
                 },
             })
 
@@ -45,18 +56,9 @@ export function useProductsSearch() {
         }
     }
 
-    function nextPage() {
-        if (!nextCursor.value) return
-        fetchProducts(nextCursor.value)
-    }
-
-    function prevPage() {
-        if (!previousCursor.value) return
-        fetchProducts(previousCursor.value)
-    }
     watch(currentPage, (p, old) => {
         if (p !== old) {
-            goToPage(p)
+            void goToPage(p)
         }
     })
     async function goToPage(page: number) {
@@ -77,9 +79,10 @@ export function useProductsSearch() {
         totalPages,
         total,
         currentPage,
+        priceRange,
         fetchProducts,
-        nextPage,
-        prevPage,
-        goToPage,
+        searchQuery,
+        sortField,
+        sortOrder,
     }
 }

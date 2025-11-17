@@ -10,7 +10,7 @@
     </UContainer>
 
     <UContainer class="py-10">
-      <NuxtPage />Xd
+      <NuxtPage />
     </UContainer>
   </UApp>
 </template>

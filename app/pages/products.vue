@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import {useProductsSearch} from "~/composables/useProductSearch";
+import {useProductList} from "~/composables/useProductList";
 import {onMounted} from "vue";
+import SearchProduct from "~/components/SearchProduct.vue";
+import PriceFilter from "~/components/Filters/PriceFilter.vue";
 
 const {
   products,
@@ -9,7 +11,10 @@ const {
   total,
   fetchProducts,
   currentPage,
-} = useProductsSearch()
+  sortField,
+  priceRange,
+  sortOrder,
+} = useProductList()
 
 onMounted(() => {
   fetchProducts()
@@ -21,6 +26,28 @@ onMounted(() => {
 
     <h1 class="text-3xl font-bold">Products</h1>
 
+    <div class="flex gap-4 items-end">
+      <SearchProduct/>
+      <USelect
+          v-model="sortField"
+          default-value="name.keyword"
+          :items="[
+    { label: 'Nazwa', value: 'name.keyword' },
+    { label: 'Cena', value: 'price' },
+    { label: 'Data utworzenia', value: 'created_at' }
+  ]"
+      />
+      <USelect
+          v-model="sortOrder"
+          :items="[
+    { label: 'Rosnąco', value: 'asc' },
+    { label: 'Malejąco', value: 'desc' }
+  ]"
+      />
+      <PriceFilter @update:price="(price) => priceRange= price"/>
+      <UButton @click="fetchProducts()">Apply</UButton>
+    </div>
+
     <div v-if="loading">
       <UCard v-for="n in 6" :key="n" class="mb-4 animate-pulse">
         <div class="h-6 bg-gray-300 rounded mb-3"/>
@@ -28,7 +55,7 @@ onMounted(() => {
       </UCard>
     </div>
 
-    <UAlert v-if="error" color="warning" title="Error" :description="error" />
+    <UAlert v-if="error" color="warning" title="Error" :description="error"/>
 
     <UPageGrid v-if="!loading && !error" :columns="3" :gap="6">
       <UCard v-for="p in products" :key="p.id" class="h-full">

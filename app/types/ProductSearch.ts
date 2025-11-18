@@ -21,3 +21,21 @@ export interface ProductSearchResponse {
     data: Product[]
     meta: ProductSearchMeta
 }
+
+export interface FilterString {
+    type: 'string'
+    values: string[]
+    ui: 'select'|'select_many'
+}
+
+export interface FilterNumber {
+    type: 'number'
+    min: number
+    max: number
+    unit?: string
+    ui: 'range'
+}
+
+export interface FiltersResponse {
+    [key: string]: FilterString | FilterNumber
+}

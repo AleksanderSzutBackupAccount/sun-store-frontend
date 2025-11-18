@@ -10,22 +10,25 @@ const {
   error,
   total,
   fetchProducts,
+  fetchFilters,
+  filters,
   searchQueryData,
 } = useProductList()
 
 onMounted(() => {
   fetchProducts()
+  fetchFilters()
 })
+watch(searchQueryData, () => fetchProducts())
 </script>
 
 <template>
   <div class="p-6 space-y-8">
 
     <h1 class="text-3xl font-bold">Products</h1>
-
     <div class="flex gap-4 items-end">
       <SearchProduct/>
-      <ProductFiltering v-model="searchQueryData" />
+      <ProductFiltering v-model="searchQueryData" :filters="filters"/>
     </div>
 
     <div v-if="loading">

@@ -6,20 +6,47 @@ export interface ProductsQuery {
     query: string;
     sortField: string;
     sortOrder: 'asc' | 'desc';
+    filters: Record<string, any>,
     priceRange: { min?: number, max?: number };
     category: string | null;
     page: number;
 }
 
+function buildFilterQuery(filters: Record<string, any>) {
+    const params: Record<string, any> = {}
+
+    console.log(filters)
+    for (const key in filters) {
+        const value = filters[key]
+
+        if (Array.isArray(value) && value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number') {
+            params[`filters[${key}][]`] = value
+            continue
+        }
+
+        if (Array.isArray(value)) {
+            params[`filters[${key}][]`] = value
+            continue
+        }
+
+        params[`filters[${key}]`] = value
+    }
+    console.log(params)
+
+    return params
+}
+
 export function useProductList() {
     const products = ref<Product[]>([])
     const loading = ref(false)
+    const filters = ref({})
     const error = ref<string | null>(null)
 
     const searchQueryData = ref<ProductsQuery>({
         query: '',
         sortField: 'created_at',
         sortOrder: 'asc',
+        filters: {},
         priceRange: { min: 0, max: undefined },
         category: null,
         page: 1,
@@ -46,7 +73,7 @@ export function useProductList() {
 
         try {
             const res = await $fetch<ProductSearchResponse>('/api/products', {
-                params: {
+                query: {
                     cursor: cursor ?? null,
                     query: searchQueryData.value.query || null,
                     category: searchQueryData.value.category,
@@ -54,6 +81,7 @@ export function useProductList() {
                     sort_order: searchQueryData.value.sortOrder || null,
                     min_price: searchQueryData.value.priceRange.min,
                     max_price: searchQueryData.value.priceRange.max,
+                    ...buildFilterQuery(searchQueryData.value.filters),
                 },
             })
 
@@ -63,6 +91,18 @@ export function useProductList() {
             total.value = res.meta.total
             perPage.value = res.meta.per_page
             pageCursorMap.value[searchQueryData.value.page] = cursor ?? null
+        } catch (e: any) {
+            error.value = e.message
+        } finally {
+            loading.value = false
+        }
+    }
+   async function fetchFilters() {
+        try {
+            const res = await $fetch<ProductSearchResponse>('/api/filters', {
+            })
+
+            filters.value = res
         } catch (e: any) {
             error.value = e.message
         } finally {
@@ -91,7 +131,9 @@ export function useProductList() {
         loading,
         error,
         totalPages,
+        filters,
         total,
+        fetchFilters,
         fetchProducts,
         searchQueryData,
     }

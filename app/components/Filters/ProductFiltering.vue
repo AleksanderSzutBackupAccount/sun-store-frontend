@@ -9,6 +9,8 @@ const props = defineProps<{
   modelValue: ProductsQuery
 }>()
 
+const isOpen = ref(false)
+
 const emit = defineEmits(['update:modelValue', 'applyFilters'])
 
 const localFilters = ref<Record<string, any>>({ ...props.modelValue })
@@ -21,17 +23,20 @@ watch(
 )
 
 const clearFilters = () => {
+  isOpen.value = false
   localFilters.value = {}
 }
 
 const applyFilters = () => {
   emit('update:modelValue', { ...localFilters.value })
   emit('applyFilters')
+  isOpen.value = false
 }
+
 </script>
 
 <template>
-  <USlideover :modal="false" :ui="{body: 'gap-4 flex flex-col', footer: 'flex justify-between'}" :dismissible="false" side="right">
+  <USlideover :ui="{body: 'gap-4 flex flex-col', footer: 'flex justify-between'}" side="right" v-model:open="isOpen">
     <UButton label="Filters" leading-icon="material-symbols:filter-alt" variant="subtle" />
     <template #title>
       <UIcon name="material-symbols:filter-alt" class="mr-2"/>Filters
@@ -40,49 +45,13 @@ const applyFilters = () => {
       <div class="space-y-6">
         <BaseFilter
             v-for="(filter, key) in props.filters"
-            :filter="filter"
-            @update:filter="(value) => localFilters.filters[key] = value"
+            :key="key"
             v-model="localFilters.filters[key]"
-            :label="key"
-            :key="key"
+            :filter="filter"
+            :label="`${key}`"
             class="space-y-2"
+            @update:filter="(value) => localFilters.filters[key] = value"
         />
-        <div
-            v-if="false"
-            v-for="(filter, key) in props.filters"
-            :key="key"
-            class="space-y-2"
-        >
-          <label class="font-medium capitalize">
-            {{ key.replace('attr_', '').replace('_', ' ') }}
-          </label>
-
-          <div v-if="filter.ui === 'select'">
-            <USelectMenu
-                v-model="localFilters[key]"
-                :items="filter.values"
-                placeholder="Wybierz..."
-                class="w-full"
-            />
-          </div>
-
-          <!-- RANGE (number) -->
-          <div v-else-if="filter.ui === 'range'">
-            <div class="px-1 text-sm text-gray-500">
-              {{ filter.min }} – {{ filter.max }} {{ filter.unit || '' }}
-            </div>
-
-            <USlider
-                v-model="localFilters['filters'][key]"
-                :min="filter.min"
-                :max="filter.max"
-                range
-                tooltip
-            />
-          </div>
-        </div>
-
-
       </div>
     </template>
 

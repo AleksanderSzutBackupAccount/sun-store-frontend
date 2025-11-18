@@ -1,28 +1,29 @@
-import type { ProductSearchResponse, Product } from '~/types/ProductSearch'
-import { ref, computed, watch } from 'vue'
+import type {FiltersResponse, Product, ProductSearchResponse} from '~/types/ProductSearch'
+import {computed, ref, watch} from 'vue'
 
+
+export type FilterRange = { 0: number, 1: number }
+export type FilterSelect = string
+export type FilterSelectMany = string[]
+
+export type FilterValue = FilterRange | FilterSelect | FilterSelectMany | null
+export type Filters = Record<string, FilterValue>
 
 export interface ProductsQuery {
     query: string;
     sortField: string;
     sortOrder: 'asc' | 'desc';
-    filters: Record<string, any>,
+    filters: Filters,
     priceRange: { min?: number, max?: number };
     category: string | null;
     page: number;
 }
 
-function buildFilterQuery(filters: Record<string, any>) {
-    const params: Record<string, any> = {}
+function buildFilterQuery(filters: Filters) {
+    const params: Record<string, unknown> = {}
 
-    console.log(filters)
     for (const key in filters) {
         const value = filters[key]
-
-        if (Array.isArray(value) && value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number') {
-            params[`filters[${key}][]`] = value
-            continue
-        }
 
         if (Array.isArray(value)) {
             params[`filters[${key}][]`] = value
@@ -31,7 +32,6 @@ function buildFilterQuery(filters: Record<string, any>) {
 
         params[`filters[${key}]`] = value
     }
-    console.log(params)
 
     return params
 }
@@ -39,7 +39,7 @@ function buildFilterQuery(filters: Record<string, any>) {
 export function useProductList() {
     const products = ref<Product[]>([])
     const loading = ref(false)
-    const filters = ref({})
+    const filtersDefinition = ref<FiltersResponse>({})
     const error = ref<string | null>(null)
 
     const searchQueryData = ref<ProductsQuery>({
@@ -47,10 +47,19 @@ export function useProductList() {
         sortField: 'created_at',
         sortOrder: 'asc',
         filters: {},
-        priceRange: { min: 0, max: undefined },
+        priceRange: {min: 0, max: undefined},
         category: null,
         page: 1,
     });
+    const filters = computed(() => {
+        const raw = searchQueryData.value.filters
+
+        return Object.fromEntries(
+            Object.entries(raw).filter(([_, value]) => {
+                return value !== null
+            })
+        )
+    })
 
     // cursors
     const nextCursor = ref<string | null>(null)
@@ -97,12 +106,10 @@ export function useProductList() {
             loading.value = false
         }
     }
-   async function fetchFilters() {
-        try {
-            const res = await $fetch<ProductSearchResponse>('/api/filters', {
-            })
 
-            filters.value = res
+    async function fetchFilters() {
+        try {
+            filtersDefinition.value = await $fetch<FiltersResponse>('/api/filters', {})
         } catch (e: any) {
             error.value = e.message
         } finally {
@@ -115,6 +122,7 @@ export function useProductList() {
             void goToPage(p)
         }
     })
+
     async function goToPage(page: number) {
         if (pageCursorMap.value[page] !== undefined) {
             return fetchProducts(pageCursorMap.value[page])
@@ -131,7 +139,7 @@ export function useProductList() {
         loading,
         error,
         totalPages,
-        filters,
+        filtersDefinition,filters,
         total,
         fetchFilters,
         fetchProducts,

@@ -25,7 +25,7 @@ onMounted(() => {
 })
 
 const emit = defineEmits<{
-  (e: 'update:filter', payload: number[]| string | string[]): void
+  (e: 'update:filter', payload: number[]| string | string[]| null): void
 }>()
 
 watch(valueRange, (value) => {
@@ -43,9 +43,11 @@ watch(valueSelectMany, (value) => {
 
 const clear = () => {
   model.value = null
+
   valueRange.value = [props.filter.min, props.filter.max]
   valueSelect.value = null
   valueSelectMany.value = []
+  emit('update:filter', null)
 }
 </script>
 

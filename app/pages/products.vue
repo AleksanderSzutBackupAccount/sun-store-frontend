@@ -3,6 +3,7 @@ import {useProductList} from "~/composables/useProductList";
 import {onMounted} from "vue";
 import SearchProduct from "~/components/SearchProduct.vue";
 import ProductFiltering from "~/components/Filters/ProductFiltering.vue";
+import FilterBadge from "~/components/Filters/FilterBadge.vue";
 
 const {
   products,
@@ -11,7 +12,8 @@ const {
   total,
   fetchProducts,
   fetchFilters,
-  filters,
+    filters,
+  filtersDefinition,
   searchQueryData,
 } = useProductList()
 
@@ -26,9 +28,14 @@ watch(searchQueryData, () => fetchProducts())
   <div class="p-6 space-y-8">
 
     <h1 class="text-3xl font-bold">Products</h1>
-    <div class="flex gap-4 items-end">
+    <div class="flex gap-4 items-end justify-between">
       <SearchProduct/>
-      <ProductFiltering v-model="searchQueryData" :filters="filters"/>
+      <div class="flex items-center gap-2">
+        <template v-for="(value, key) in filters" :key="key">
+          <FilterBadge v-model=" searchQueryData.filters[key]" :label="`${key}`" @clear="fetchProducts"/>
+        </template>
+        <ProductFiltering v-model="searchQueryData" :filters="filtersDefinition"/>
+      </div>
     </div>
 
     <div v-if="loading">

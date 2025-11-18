@@ -36,6 +36,8 @@ export interface FilterNumber {
     ui: 'range'
 }
 
+export type Filter = FilterString | FilterNumber
+
 export interface FiltersResponse {
-    [key: string]: FilterString | FilterNumber
+    [key: string]: Filter
 }

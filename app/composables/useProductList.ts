@@ -56,6 +56,9 @@ export function useProductList() {
 
         return Object.fromEntries(
             Object.entries(raw).filter(([_, value]) => {
+                if(Array.isArray(value)) {
+                    return value.length > 0
+                }
                 return value !== null
             })
         )
@@ -88,8 +91,6 @@ export function useProductList() {
                     category: searchQueryData.value.category,
                     sort_by: searchQueryData.value.sortField || null,
                     sort_order: searchQueryData.value.sortOrder || null,
-                    min_price: searchQueryData.value.priceRange.min,
-                    max_price: searchQueryData.value.priceRange.max,
                     ...buildFilterQuery(searchQueryData.value.filters),
                 },
             })

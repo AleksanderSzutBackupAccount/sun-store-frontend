@@ -3,7 +3,7 @@ import {ref, watch} from 'vue'
 import type {ProductsQuery} from "~/composables/useProductList";
 import BaseFilter from "~/components/Filters/BaseFilter.vue";
 import type {FiltersResponse} from "~/types/ProductSearch";
-
+import { cloneDeep } from 'lodash-es'
 const props = defineProps<{
   filters: FiltersResponse
   modelValue: ProductsQuery
@@ -13,17 +13,18 @@ const isOpen = ref(false)
 
 const emit = defineEmits(['update:modelValue', 'applyFilters'])
 
-const localFilters = ref<Record<string, any>>({ ...props.modelValue })
+const localFilters = ref<Record<string, any>>(cloneDeep( props.modelValue))
 
 watch(
     () => props.modelValue,
     () => {
-      localFilters.value = { ...props.modelValue }
+      localFilters.value = cloneDeep(props.modelValue)
     }
 )
 
 const clearFilters = () => {
   isOpen.value = false
+  emit('update:modelValue', {...props.modelValue, filters: {}})
   localFilters.value = {}
 }
 
@@ -37,11 +38,12 @@ const applyFilters = () => {
 
 <template>
   <USlideover :ui="{body: 'gap-4 flex flex-col', footer: 'flex justify-between'}" side="right" v-model:open="isOpen">
+
     <UButton label="Filters" leading-icon="material-symbols:filter-alt" variant="subtle" />
     <template #title>
       <UIcon name="material-symbols:filter-alt" class="mr-2"/>Filters
     </template>
-    <template #body>
+    <template #body>{{modelValue.filters}}
       <div class="space-y-6">
         <BaseFilter
             v-for="(filter, key) in props.filters"

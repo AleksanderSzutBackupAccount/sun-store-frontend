@@ -12,7 +12,7 @@ const {
   total,
   fetchProducts,
   fetchFilters,
-    filters,
+  filters,
   filtersDefinition,
   searchQueryData,
 } = useProductList()
@@ -31,8 +31,9 @@ watch(searchQueryData, () => fetchProducts())
     <div class="flex gap-4 items-end justify-between">
       <SearchProduct/>
       <div class="flex items-center gap-2">
+        <ProductSortSelect v-model="searchQueryData" @update="fetchProducts"/>
         <template v-for="(value, key) in filters" :key="key">
-          <FilterBadge v-model=" searchQueryData.filters[key]" :label="`${key}`" @clear="fetchProducts"/>
+          <FilterBadge v-model="searchQueryData.filters[key]" :label="`${key}`" @clear="fetchProducts"/>
         </template>
         <ProductFiltering v-model="searchQueryData" :filters="filtersDefinition"/>
       </div>

@@ -33,7 +33,8 @@ const clear = (item: unknown) => {
               class="cursor-pointer"
               @click="clear(item)"
           />
-        </UBadge></template>
+        </UBadge>
+      </template>
     </template>
     <UBadge
         v-else
@@ -43,6 +44,11 @@ const clear = (item: unknown) => {
     >
       {{ modal }}
     </UBadge>
+    <UIcon
+        name="mdi:close"
+        class="cursor-pointer"
+        @click="modal = []"
+    />
   </UBadge>
 </template>
 

@@ -11,6 +11,7 @@ RUN corepack enable
 RUN corepack prepare yarn@4.11.0 --activate
 
 COPY .env .env
+COPY .yarnrc.yml .yarnrc.yml
 COPY ./package.json ./yarn.lock ./
 
 RUN yarn install --immutable
@@ -31,7 +32,12 @@ WORKDIR /app
 COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/yarn.lock ./yarn.lock
-RUN yarn install --production --frozen-lockfile
+
+RUN corepack enable
+RUN corepack prepare yarn@4.11.0 --activate
+
+RUN yarn workspaces focus --production
+
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0

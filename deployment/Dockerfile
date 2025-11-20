@@ -2,7 +2,7 @@
 # Build Stage
 # --------------------
 ARG NODE_VERSION=22.14.0
-FROM node:${NODE_VERSION}-slim AS builder
+FROM node:${NODE_VERSION}-bookworm AS builder
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ RUN yarn build
 # --------------------
 # Production Stage
 # --------------------
-FROM node:${NODE_VERSION}-slim AS production
+FROM node:${NODE_VERSION}-bookworm AS production
 
 WORKDIR /app
 

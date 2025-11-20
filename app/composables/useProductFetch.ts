@@ -1,5 +1,6 @@
 import type {Product, ProductSearchResponse} from "~/types/ProductSearch";
-import {computed, ref} from "vue";
+import {ref} from "vue";
+import {formatError} from "~~/utils/formatError";
 
 export function useProductFetch() {
 
@@ -43,8 +44,9 @@ export function useProductFetch() {
             total.value = res.meta.total
             perPage.value = res.meta.per_page
             pageCursorMap.value[currentPage.value] = cursor ?? null
-        } catch (e: any) {
-            error.value = e.message
+        } catch (e: unknown) {
+            const err = formatError(e)
+            error.value = err.message
         } finally {
             loading.value = false
         }

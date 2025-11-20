@@ -7,7 +7,7 @@ export type FilterRange = { 0: number, 1: number }
 export type FilterSelect = string
 export type FilterSelectMany = string[]
 
-export type FilterValue = FilterRange | FilterSelect | FilterSelectMany | null
+export type FilterValue = FilterRange | FilterSelect | FilterSelectMany | undefined
 export type Filters = Record<string, FilterValue>
 
 export interface ProductsQuery {

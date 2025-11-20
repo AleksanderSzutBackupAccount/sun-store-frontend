@@ -11,7 +11,7 @@ const {
   searchQuery
 } = useProductFetch()
 
-const query = defineModel<ProductsQuery>({
+defineModel<ProductsQuery>({
   default: null
 })
 

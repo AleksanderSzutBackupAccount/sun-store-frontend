@@ -13,12 +13,11 @@ const isOpen = ref(false)
 
 const emit = defineEmits(['update:modelValue', 'applyFilters'])
 
-const localFilters = ref<Record<string, any>>(cloneDeep( props.modelValue))
+const localFilters = ref<ProductsQuery>(cloneDeep( props.modelValue))
 
 watch(
     () => props.modelValue.filters,
     () => {
-      console.log('change')
       localFilters.value = cloneDeep(props.modelValue)
     },
     {deep: true}
@@ -27,7 +26,7 @@ watch(
 const clearFilters = () => {
   isOpen.value = false
   emit('update:modelValue', {...props.modelValue, filters: {}})
-  localFilters.value = {}
+  localFilters.value = props.modelValue
 }
 
 const applyFilters = () => {

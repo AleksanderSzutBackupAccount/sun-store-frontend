@@ -22,7 +22,7 @@ const clear = (item: unknown) => {
   <UBadge variant="subtle" color="neutral">
     <span> {{ label.replace('attr_', '').replace('_', ' ') }}:</span>
     <template v-if="Array.isArray(modal)">
-      <template v-for="item in modal">
+      <template v-for="item in modal" :key="item">
         <UBadge
             color="primary"
             variant="solid"

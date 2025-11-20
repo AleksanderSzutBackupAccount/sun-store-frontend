@@ -16,10 +16,12 @@ const emit = defineEmits(['update:modelValue', 'applyFilters'])
 const localFilters = ref<Record<string, any>>(cloneDeep( props.modelValue))
 
 watch(
-    () => props.modelValue,
+    () => props.modelValue.filters,
     () => {
+      console.log('change')
       localFilters.value = cloneDeep(props.modelValue)
-    }
+    },
+    {deep: true}
 )
 
 const clearFilters = () => {
@@ -37,13 +39,16 @@ const applyFilters = () => {
 </script>
 
 <template>
-  <USlideover :ui="{body: 'gap-4 flex flex-col', footer: 'flex justify-between'}" side="right" v-model:open="isOpen">
+  <USlideover v-model:open="isOpen" :ui="{body: 'gap-4 flex flex-col', footer: 'flex justify-between'}" side="right">
+<div>
+  <UButton label="Filters" leading-icon="material-symbols:filter-alt" variant="subtle" />
 
-    <UButton label="Filters" leading-icon="material-symbols:filter-alt" variant="subtle" />
+</div>
     <template #title>
       <UIcon name="material-symbols:filter-alt" class="mr-2"/>Filters
     </template>
-    <template #body>{{modelValue.filters}}
+    <template #body>
+
       <div class="space-y-6">
         <BaseFilter
             v-for="(filter, key) in props.filters"
@@ -59,7 +64,7 @@ const applyFilters = () => {
 
     <template #footer>
         <UButton
-            color="gray"
+            color="neutral"
             variant="soft"
             @click="clearFilters"
         >

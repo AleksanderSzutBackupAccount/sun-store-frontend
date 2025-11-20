@@ -1,27 +1,25 @@
-export default defineEventHandler(async (event) => {
-    const config = useRuntimeConfig();
+import {formatError} from "~~/utils/formatError";
 
+export default defineEventHandler(async (event) => {
     const query = getQuery(event);
 
     const backendUrl = `${process.env.NUXT_API_URL}/api/search/products`;
 
     try {
-        const response = await $fetch(backendUrl, {
+        return await $fetch(backendUrl, {
             method: 'GET',
             query,
             headers: {
-                // Przekazywanie nagłówków (np. token)
                 Authorization: getHeader(event, 'authorization') || '',
                 'Content-Type': 'application/json',
             }
         });
-
-        return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const err = formatError(error)
         console.error('Proxy error → Laravel:', error);
         throw createError({
-            statusCode: error?.statusCode || 500,
-            statusMessage: error?.message || 'Proxy error',
-        });
+            statusCode: err.statusCode,
+            statusMessage: err.message
+        })
     }
 });

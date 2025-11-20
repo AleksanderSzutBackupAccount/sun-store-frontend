@@ -2,8 +2,8 @@
 
 defineProps<{label: string}>()
 
-const modal = defineModel<FilterValue | null>({
-  default: null
+const modal = defineModel<FilterValue | undefined>({
+  default: undefined
 })
 
 
@@ -15,6 +15,7 @@ const clear = (item: unknown) => {
   }
   emit('clear')
 }
+
 </script>
 
 <template>
@@ -47,7 +48,7 @@ const clear = (item: unknown) => {
     <UIcon
         name="mdi:close"
         class="cursor-pointer"
-        @click="modal = []"
+        @click="modal = undefined"
     />
   </UBadge>
 </template>

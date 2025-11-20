@@ -19,8 +19,8 @@ const model = defineModel<string | null>({
 
     <USelect
         id="category-filter"
-        :default-value="null"
         v-model="model"
+        :default-value="null"
         :items="categories"
         placeholder="Select category"
         clearable

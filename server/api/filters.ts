@@ -1,6 +1,6 @@
-export default defineEventHandler(async (event) => {
-    const config = useRuntimeConfig();
+import {formatError} from "~~/utils/formatError";
 
+export default defineEventHandler(async (event) => {
     const query = getQuery(event);
 
     const backendUrl = `${process.env.NUXT_API_URL}/api/search/products/filters`;
@@ -16,11 +16,13 @@ export default defineEventHandler(async (event) => {
         });
 
         return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const err = formatError(error)
         console.error('Proxy error → Laravel:', error);
+
         throw createError({
-            statusCode: error?.statusCode || 500,
-            statusMessage: error?.message || 'Proxy error',
-        });
+            statusCode: err.statusCode,
+            statusMessage: err.message
+        })
     }
 });

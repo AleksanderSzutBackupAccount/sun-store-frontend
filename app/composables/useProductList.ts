@@ -1,5 +1,6 @@
 import type {FiltersResponse, Product, ProductSearchResponse} from '~/types/ProductSearch'
 import {computed, ref, watch} from 'vue'
+import {formatError} from "~~/utils/formatError";
 
 
 export type FilterRange = { 0: number, 1: number }
@@ -59,7 +60,7 @@ export function useProductList() {
                 if(Array.isArray(value)) {
                     return value.length > 0
                 }
-                return value !== null
+                return value !== undefined
             })
         )
     })
@@ -101,8 +102,9 @@ export function useProductList() {
             total.value = res.meta.total
             perPage.value = res.meta.per_page
             pageCursorMap.value[searchQueryData.value.page] = cursor ?? null
-        } catch (e: any) {
-            error.value = e.message
+        } catch (e: unknown) {
+            const err = formatError(e)
+            error.value = err.message
         } finally {
             loading.value = false
         }
@@ -111,8 +113,9 @@ export function useProductList() {
     async function fetchFilters() {
         try {
             filtersDefinition.value = await $fetch<FiltersResponse>('/api/filters', {})
-        } catch (e: any) {
-            error.value = e.message
+        } catch (e: unknown) {
+            const err = formatError(e)
+            error.value = err.message
         } finally {
             loading.value = false
         }

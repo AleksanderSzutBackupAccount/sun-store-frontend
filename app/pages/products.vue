@@ -21,7 +21,7 @@ onMounted(() => {
   fetchProducts()
   fetchFilters()
 })
-watch(searchQueryData, () => fetchProducts())
+watch(searchQueryData, () => fetchProducts(), {deep: true})
 </script>
 
 <template>
@@ -29,7 +29,7 @@ watch(searchQueryData, () => fetchProducts())
 
     <h1 class="text-3xl font-bold">Products</h1>
     <div class="flex gap-4 items-end justify-between">
-      <SearchProduct/>
+      <SearchProduct v-model="searchQueryData"/>
       <div class="flex items-center gap-2">
         <ProductSortSelect v-model="searchQueryData" @update="fetchProducts"/>
         <template v-for="(value, key) in filters" :key="key">

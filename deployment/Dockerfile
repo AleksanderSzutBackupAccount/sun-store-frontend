@@ -2,19 +2,24 @@
 # Build Stage
 # --------------------
 ARG NODE_VERSION=22.14.0
-
 FROM node:${NODE_VERSION}-slim AS builder
 
 WORKDIR /app
 
-COPY .env .env
+# Enable corepack so yarn@4 works
+RUN corepack enable
+RUN corepack prepare yarn@4.11.0 --activate
 
+COPY .env .env
 COPY ./package.json ./yarn.lock ./
-RUN yarn install --frozen-lockfile
+
+RUN yarn install --immutable
 
 COPY . .
+
 ENV NODE_OPTIONS='--max-old-space-size=4096'
 RUN yarn build
+
 
 # --------------------
 # Production Stage

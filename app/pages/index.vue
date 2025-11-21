@@ -16,7 +16,7 @@ const {
   isPageChanging,
   filtersDefinition,
   searchQueryData,
-    page,
+  page,
 } = useProductList()
 
 onMounted(() => {
@@ -29,14 +29,19 @@ onMounted(() => {
   <div class="p-6 space-y-8">
 
     <h1 class="text-3xl font-bold">Products</h1>
-    <div class=" sticky z-50 top-0 flex gap-4 items-end justify-between p-4 sm:p-6 rounded-lg bg-default ring ring-default divide-y divide-default h-full">
-      <SearchProduct v-model="searchQueryData"/>
-      <div class="flex items-center gap-2">
-        <ProductSortSelect v-model="searchQueryData" @update="fetchProducts"/>
+    <div class=" sticky z-50 top-0 flex-col flex gap-1 p-4 sm:p-6 rounded-lg bg-default ring ring-default h-full">
+      <div class="flex justify-between w-full gap-2">
+        <SearchProduct v-model="searchQueryData"/>
+        <div class="flex items-center gap-2">
+          <ProductSortSelect v-model="searchQueryData" @update="fetchProducts"/>
+
+          <ProductFiltering v-model="searchQueryData" :filters="filtersDefinition"/>
+        </div>
+      </div>
+      <div class="flex gap-1 justify-end">
         <template v-for="(value, key) in filters" :key="key">
           <FilterBadge v-model="searchQueryData.filters[key]" :label="`${key}`" @clear="fetchProducts"/>
         </template>
-        <ProductFiltering v-model="searchQueryData" :filters="filtersDefinition"/>
       </div>
     </div>
 
@@ -53,7 +58,7 @@ onMounted(() => {
       <ProductCard v-for="product in products" :key="product.id" :product="product" class="h-full"/>
     </UPageGrid>
 
-    <div v-if="total > 1"  class="fixed bottom-0 left-0 right-0 flex justify-center">
+    <div v-if="total > 1" class="fixed bottom-0 left-0 right-0 flex justify-center">
 
       <div class="w-(--ui-container) px-14">
 

@@ -75,6 +75,10 @@ export function useProductList() {
 
     watch(searchQueryData, () => {
         pageCursorMap.value = {1: null}
+        if(page.value === 1) {
+            fetchProducts()
+            return
+        }
         page.value = 1
     }, {deep: true})
 

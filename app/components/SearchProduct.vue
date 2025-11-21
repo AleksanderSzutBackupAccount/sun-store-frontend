@@ -71,7 +71,7 @@ const clear = () => {
     <UCard
         v-if="products.length > 0"
 
-        class="absolute w-100 z-20 mt-1  top-[100%]"
+        class="absolute w-100 z-20 mt-1 top-[100%]"
     >
       <template #header>
         <h5 class="font-bold ">Suggested products</h5>
@@ -88,13 +88,13 @@ const clear = () => {
               class="p-2 cursor-pointer transition hover:bg-gray-50 dark:hover:bg-gray-800 rounded"
           >
             <div class="flex content-center justify-between">
-              <div class="flex items-center">
-                <Icon name="mdi-search" mode="svg" class="mr-1"/>
+              <div class="flex items-center ">
+                <Icon name="mdi-search" mode="css" class="mr-1"/>
 
                 <span class="font-medium text-gray-900 dark:text-gray-100">
                 {{ item.name }}
               </span></div>
-              <span class="text-sm text-gray-300 dark:text-gray-400">
+              <span class="text-sm text-gray-300 dark:text-gray-400 text-nowrap">
                 {{ item.price }} zł
               </span>
             </div>

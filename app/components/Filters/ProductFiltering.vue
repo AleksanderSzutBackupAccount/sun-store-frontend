@@ -40,7 +40,11 @@ const applyFilters = () => {
 <template>
   <USlideover v-model:open="isOpen" :ui="{body: 'gap-4 flex flex-col', footer: 'flex justify-between'}" side="right">
 <div>
-  <UButton label="Filters" leading-icon="material-symbols:filter-alt" variant="subtle" />
+  <UButton leading-icon="material-symbols:filter-alt" variant="subtle" >
+    <template #default>
+      <span class="hidden md:block">Filters</span>
+    </template>
+  </UButton>
 
 </div>
     <template #title>

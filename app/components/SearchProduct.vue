@@ -30,7 +30,6 @@ const canSearch = computed(() => {
 })
 
 const isSearched = computed(()=> {
-  console.log(searchQuery.value, model.value.query)
   if(searchQuery.value.length === 0) {
     return false
   }

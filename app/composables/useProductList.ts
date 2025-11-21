@@ -2,7 +2,6 @@ import type {FiltersResponse, Product, ProductSearchResponse} from '~/types/Prod
 import {computed, ref, watch} from 'vue'
 import {formatError} from "~~/utils/formatError";
 
-
 export type FilterRange = { 0: number, 1: number }
 export type FilterSelect = string
 export type FilterSelectMany = string[]
@@ -15,9 +14,6 @@ export interface ProductsQuery {
     sortField: string;
     sortOrder: 'asc' | 'desc';
     filters: Filters,
-    priceRange: { min?: number, max?: number };
-    category: string | null;
-    page: number;
 }
 
 function buildFilterQuery(filters: Filters) {
@@ -48,9 +44,6 @@ export function useProductList() {
         sortField: 'created_at',
         sortOrder: 'asc',
         filters: {},
-        priceRange: {min: 0, max: undefined},
-        category: null,
-        page: 1,
     });
     const filters = computed(() => {
         const raw = searchQueryData.value.filters
@@ -67,7 +60,6 @@ export function useProductList() {
 
     // cursors
     const nextCursor = ref<string | null>(null)
-    const previousCursor = ref<string | null>(null)
 
     const pageCursorMap = ref<Record<number, string | null>>({
         1: null
@@ -79,8 +71,14 @@ export function useProductList() {
 
     // UI pages
     const totalPages = computed(() => Math.ceil(total.value / perPage.value))
+    const page = ref(1)
 
-    async function fetchProducts(cursor?: string | null) {
+    watch(searchQueryData, () => {
+        pageCursorMap.value = {1: null}
+        page.value = 1
+    }, {deep: true})
+
+    async function fetchProducts(cursor?: string | null, page: number = 1) {
         loading.value = true
         error.value = null
 
@@ -89,7 +87,6 @@ export function useProductList() {
                 query: {
                     cursor: cursor ?? null,
                     search: searchQueryData.value.query || null,
-                    category: searchQueryData.value.category,
                     sort_by: searchQueryData.value.sortField || null,
                     sort_order: searchQueryData.value.sortOrder || null,
                     ...buildFilterQuery(searchQueryData.value.filters),
@@ -98,10 +95,9 @@ export function useProductList() {
 
             products.value = res.data
             nextCursor.value = res.meta.next_cursor
-            previousCursor.value = res.meta.previous_cursor
             total.value = res.meta.total
             perPage.value = res.meta.per_page
-            pageCursorMap.value[searchQueryData.value.page] = cursor ?? null
+            pageCursorMap.value[page+1] = res.meta.next_cursor
         } catch (e: unknown) {
             const err = formatError(e)
             error.value = err.message
@@ -121,20 +117,33 @@ export function useProductList() {
         }
     }
 
-    watch(() => searchQueryData.value.page, (p, old) => {
+    watch(() => page.value, (p, old) => {
         if (p !== old) {
             void goToPage(p)
         }
     })
 
-    async function goToPage(page: number) {
-        if (pageCursorMap.value[page] !== undefined) {
-            return fetchProducts(pageCursorMap.value[page])
-        }
+    async function iterateOnPageCursors(targetPage: number) {
+        const knownPages = Object.keys(pageCursorMap.value).map(Number)
+        let currentPage = knownPages.length ? Math.max(...knownPages) : 1
 
-        for (let i = Object.keys(pageCursorMap.value).length; i < page; i++) {
-            if (!nextCursor.value) break
-            await fetchProducts(nextCursor.value)
+        while (currentPage < targetPage) {
+            const currentCursor = pageCursorMap.value[currentPage] ?? null
+
+            await fetchProducts(currentCursor, currentPage)
+
+            currentPage++
+
+            if (pageCursorMap.value[currentPage] === undefined) {
+                break
+            }
+        }
+    }
+
+    async function goToPage(page: number) {
+        await iterateOnPageCursors(page);
+        if (pageCursorMap.value[page] !== undefined) {
+            return fetchProducts(pageCursorMap.value[page], page)
         }
     }
 
@@ -142,8 +151,10 @@ export function useProductList() {
         products,
         loading,
         error,
+        page,
         totalPages,
-        filtersDefinition,filters,
+        filtersDefinition,
+        filters,
         total,
         fetchFilters,
         fetchProducts,

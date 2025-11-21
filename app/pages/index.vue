@@ -15,13 +15,13 @@ const {
   filters,
   filtersDefinition,
   searchQueryData,
+    page,
 } = useProductList()
 
 onMounted(() => {
   fetchProducts()
   fetchFilters()
 })
-watch(searchQueryData, () => fetchProducts(), {deep: true})
 </script>
 
 <template>
@@ -54,7 +54,7 @@ watch(searchQueryData, () => fetchProducts(), {deep: true})
 
     <div v-if="total > 1" class="flex flex-col items-center gap-4">
       <UPagination
-          v-model:page="searchQueryData.page"
+          v-model:page="page"
           :total="total"
           :items-per-page="15"
       />

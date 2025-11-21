@@ -13,6 +13,7 @@ const {
   fetchProducts,
   fetchFilters,
   filters,
+  isPageChanging,
   filtersDefinition,
   searchQueryData,
     page,
@@ -28,7 +29,7 @@ onMounted(() => {
   <div class="p-6 space-y-8">
 
     <h1 class="text-3xl font-bold">Products</h1>
-    <div class="flex gap-4 items-end justify-between">
+    <div class=" sticky z-50 top-0 flex gap-4 items-end justify-between p-4 sm:p-6 rounded-lg bg-default ring ring-default divide-y divide-default h-full">
       <SearchProduct v-model="searchQueryData"/>
       <div class="flex items-center gap-2">
         <ProductSortSelect v-model="searchQueryData" @update="fetchProducts"/>
@@ -52,14 +53,21 @@ onMounted(() => {
       <ProductCard v-for="product in products" :key="product.id" :product="product" class="h-full"/>
     </UPageGrid>
 
-    <div v-if="total > 1" class="flex flex-col items-center gap-4">
-      <UPagination
-          v-model:page="page"
-          :total="total"
-          :items-per-page="15"
-      />
+    <div v-if="total > 1"  class="fixed bottom-0 left-0 right-0 flex justify-center">
+
+      <div class="w-(--ui-container) px-14">
+
+        <UCard class="flex flex-col items-center gap-4 ">
+          <UPagination
+              v-model:page="page"
+              :disabled="isPageChanging"
+              :total="total"
+              :items-per-page="15"
+          />
+
+        </UCard>
+      </div>
 
     </div>
-
   </div>
 </template>

@@ -59,11 +59,11 @@ const clear = () => {
       >
         <template #trailing>
           <template v-if="isSearched">
-            <UButton icon="mdi-close" :variant="canSearch ? 'solid':'ghost'" @click="clear"/>
+            <UButton icon="mdi-close" variant="ghost" @click="clear"/>
 
           </template>
           <template v-else>
-            <UButton icon="mdi-search" :variant="'solid'" @click="apply"/>
+            <UButton icon="mdi-search" :variant="canSearch ? 'solid':'ghost'"  @click="apply"/>
           </template>
         </template>
       </UInput>

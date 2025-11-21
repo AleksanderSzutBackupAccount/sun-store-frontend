@@ -140,11 +140,21 @@ export function useProductList() {
         }
     }
 
+    const isPageChanging = ref(false)
+
     async function goToPage(page: number) {
-        await iterateOnPageCursors(page);
-        if (pageCursorMap.value[page] !== undefined) {
-            return fetchProducts(pageCursorMap.value[page], page)
+        if(isPageChanging.value) {
+            return
         }
+        isPageChanging.value = true
+
+        await iterateOnPageCursors(page);
+
+        if (pageCursorMap.value[page] !== undefined) {
+            await fetchProducts(pageCursorMap.value[page], page)
+        }
+
+        isPageChanging.value = false
     }
 
     return {
@@ -159,5 +169,6 @@ export function useProductList() {
         fetchFilters,
         fetchProducts,
         searchQueryData,
+        isPageChanging
     }
 }

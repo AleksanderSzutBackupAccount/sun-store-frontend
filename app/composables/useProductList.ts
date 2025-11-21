@@ -88,7 +88,7 @@ export function useProductList() {
             const res = await $fetch<ProductSearchResponse>('/api/products', {
                 query: {
                     cursor: cursor ?? null,
-                    query: searchQueryData.value.query || null,
+                    search: searchQueryData.value.query || null,
                     category: searchQueryData.value.category,
                     sort_by: searchQueryData.value.sortField || null,
                     sort_order: searchQueryData.value.sortOrder || null,

@@ -22,7 +22,7 @@ export function useProductFetch() {
     })
 
     const total = ref(0)
-    const perPage = ref(15)
+    const perPage = ref(5)
 
     async function fetch(cursor?: string | null) {
         loading.value = true
@@ -35,6 +35,7 @@ export function useProductFetch() {
                     search: searchQuery.value || null,
                     sort_field: sortField.value || null,
                     sort_order: sortOrder.value || null,
+                    per_page: perPage.value
                 },
             })
 
